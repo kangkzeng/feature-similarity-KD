@@ -3,3 +3,5 @@ __pycache__/
 
 checkpoint/
 *.png
+
+!figure/method.png

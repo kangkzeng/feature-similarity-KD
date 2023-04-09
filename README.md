@@ -3,7 +3,8 @@ Official Implementation of the **"Enhancing Low-Resolution Face Recognition with
 
 [[ArXiv]](https://arxiv.org/abs/2303.04681)
 
-![concept.png](/figure/method.png)
+<img src="figure/method.png" width="500">
+
 
 This is the following study of our previous study [Teaching Where to Look (ECCV 2022)](https://github.com/gist-ailab/teaching-where-to-look).
 

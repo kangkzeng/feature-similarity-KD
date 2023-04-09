@@ -1,2 +1,5 @@
 .neptune/
 __pycache__/
+
+checkpoint/
+*.png

@@ -1,11 +1,18 @@
 # Feature Similarity Knowledge Distillation (F-SKD)
 Official Implementation of the **"Enhancing Low-Resolution Face Recognition with Feature Similarity Knowledge Distillation"**.
 
+[[ArXiv]](https://arxiv.org/abs/2303.04681)
+
+![concept.png](/figure/method.png)
+
+This is the following study of our previous study [Teaching Where to Look (ECCV 2022)](https://github.com/gist-ailab/teaching-where-to-look).
+
 
 # Updates & TODO Lists
-- [x] F-SKD has been released
-- [ ] Demo video and pretrained checkpoints
-
+- [x] F-SKD has been released (AgeDB-30 Verification Code)
+- [ ] Identification Code
+- [ ] Multi-GPU training
+- [ ] Demo video
 
 # Getting Started
 ## Environment Setup
@@ -120,3 +127,16 @@ All networks were trained using a single A100 GPU (batchsize=256, 47K iterations
         ```
         apt-get -y install libglib2.0-0
         ```
+
+# License
+The source code of this repository is released only for academic use. See the [license](LICENSE) file for details.
+
+
+# Notes
+The codes of this repository are built upon the following open sources. Thanks to the authors for sharing the code!
+- Pytorch_ArcFace (CVPR 2019): https://github.com/wujiyang/Face_Pytorch
+- CBAM Attention Module (ECCV 2018): https://github.com/luuuyi/CBAM.PyTorch
+- InsightFace: https://github.com/deepinsight/insightface
+- QualNet (CVPR 2021): https://github.com/tjdhg456/QualNet-Pytorch
+- A-SKD (ECCV 2022): https://github.com/gist-ailab/teaching-where-to-look
+- AdaFace (CVPR 2022): https://github.com/mk-minchul/AdaFace 

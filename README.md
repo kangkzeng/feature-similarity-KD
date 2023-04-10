@@ -116,6 +116,13 @@ All networks were trained using a single A100 GPU (batchsize=256, 47K iterations
     ```
     - You can reference the training scripts in the [$run_student.sh](run_student.sh)
 
+3. Inference Code
+    ```bash
+    python test.py --checkpoint_dir $CHECKPOINT_DIR --mode $MODE --down_size $DOWN_SIZE \
+                   --batch_size $BATCH_SIZE --gpus $GPU_ID --data_dir $FACE_DIR --seed $SEED \
+    ```    
+    - You can reference the test script in the [$run_test.sh](run_test.sh)
+
 
 # Issues
 1. OpenCV install error

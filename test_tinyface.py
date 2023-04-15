@@ -1,11 +1,8 @@
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-import sys
-sys.path.append('../')
-
 import torch.utils.data
 from torch.nn import DataParallel
+from model.backbone import CBAMResNet
 import torchvision.transforms as transforms
 import argparse
 import subprocess
@@ -14,13 +11,7 @@ import numpy as np
 from tqdm import tqdm
 import argparse
 import pandas as pd
-import tinyface_helper
-from backbone.iresnet import iresnet50
-from scipy.spatial import distance
-
-import sys, os
-sys.path.insert(0, os.path.dirname(os.getcwd()))
-
+from evaluation import tinyface_helper
 # DataLoader
 import cv2
 from torch.utils.data import Dataset, DataLoader
@@ -100,12 +91,9 @@ def load_model(args):
     device = torch.device('cuda')
 
     # define backbone and margin layer
-    if args.backbone == 'iresnet50':
-        net = iresnet50(attention_type=args.mode)
-    else:
-        raise('Select Proper Backbone Network')
-    
-    net.load_state_dict(torch.load(args.net_path, map_location='cpu')['net_state_dict'], strict=False)
+    net = CBAMResNet(50, feature_dim=512, mode=args.mode)
+    net.load_state_dict(torch.load(args.checkpoint_path)['net_state_dict'])
+
     if multi_gpus:
         net = DataParallel(net).to(device)
     else:
@@ -113,7 +101,6 @@ def load_model(args):
 
     net.eval()
     return net
-
 
 def calc_accuracy(tinyface_test, probe, gallery, do_norm=True):
     if do_norm: 
@@ -141,36 +128,25 @@ def calc_accuracy(tinyface_test, probe, gallery, do_norm=True):
         acc_list += [acc * 100]
     
     print(acc_list)
-    pd.DataFrame({'rank':[1, 5, 10, 20], 'values':acc_list}).to_csv(os.path.join(save_path, 'result_norm_%s.csv' %str(do_norm)), index=False)
-    
+    pd.DataFrame({'rank':[1, 5, 10, 20], 'values':acc_list}).to_csv(os.path.join(args.save_dir, 'tinyface_result.csv'), index=False)
     
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='tinyface')
-    parser.add_argument('--data_root', default='Face/tinyface/new')
-    parser.add_argument('--net_path', type=str, default='checkpoint/lr_face_recognition/fskd_cbam_cosface/equal_true/F_SKD_BLOCK_false_20/all/last_net.ckpt', help='scale size')
-    
+    parser.add_argument('--tinyface_dir', default='tinyface/')
     parser.add_argument('--gpus', default='0', type=str)
-    parser.add_argument('--batch_size', default=1024, type=int, help='')
-
-    parser.add_argument('--backbone', type=str, default='iresnet50', help='attention type')
-    parser.add_argument('--mode', type=str, default='cbam', help='attention type')
-
-    parser.add_argument('--save_name', type=str, default='name')
-    parser.add_argument('--result_dir', type=str, default='./result_flip_true')
+    parser.add_argument('--batch_size', default=512, type=int, help='')
+    parser.add_argument('--mode', type=str, default='ir', help='attention type')
+    parser.add_argument('--save_dir', type=str, default='result/')
+    parser.add_argument('--checkpoint_path', type=str, default='checkpoint/F-SKD/last_net.ckpt', help='scale size')
     parser.add_argument('--use_flip_test', type=str2bool, default='True')
-    
     args = parser.parse_args()
+    
+    os.makedirs(args.save_dir, exist_ok=True)
     
     # load model
     model = load_model(args)
-    tinyface_test = tinyface_helper.TinyFaceTest(tinyface_root=args.data_root)
-
-    # set save root
-    save_path = os.path.join(args.result_dir, args.save_name)
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-    print('save_path: {}'.format(save_path))
+    tinyface_test = tinyface_helper.TinyFaceTest(tinyface_root=args.tinyface_dir)
 
     probe_loader = prepare_dataloader(tinyface_test.probe_paths, args.batch_size, num_workers=8)
     gallery_loader = prepare_dataloader(tinyface_test.gallery_paths, args.batch_size, num_workers=8)
@@ -182,7 +158,5 @@ if __name__ == '__main__':
     gallery_features = infer(model, gallery_loader, use_flip_test=args.use_flip_test)
     
     print('------------------ Start -------------------')
-    print('Strategy : %s' %args.save_name)
-    calc_accuracy(tinyface_test, probe_features, gallery_features, do_norm=False)
     calc_accuracy(tinyface_test, probe_features, gallery_features, do_norm=True)
     print('------------------- End ---------------------')

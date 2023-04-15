@@ -10,8 +10,9 @@ This is the following study of our previous study [Teaching Where to Look (ECCV 
 
 
 # Updates & TODO Lists
-- [x] F-SKD has been released (AgeDB-30 Verification Code)
-- [ ] Identification Code
+- [x] F-SKD has been released (AgeDB-30 Verification Code) (2023.03.08)
+- [x] Identification Code (2023.04.15)
+- [ ] Pretrained Model
 - [ ] Multi-GPU training
 - [ ] Demo video
 
@@ -116,12 +117,28 @@ All networks were trained using a single A100 GPU (batchsize=256, 47K iterations
     ```
     - You can reference the training scripts in the [$run_student.sh](run_student.sh)
 
-3. Inference Code
-    ```bash
-    python test.py --checkpoint_dir $CHECKPOINT_DIR --mode $MODE --down_size $DOWN_SIZE \
-                   --batch_size $BATCH_SIZE --gpus $GPU_ID --data_dir $FACE_DIR --seed $SEED \
-    ```    
-    - You can reference the test script in the [$run_test.sh](run_test.sh)
+3. Evaluation 
+    - 3-1. AgeDB-30 Verification Test
+        ```bash
+        python test.py --checkpoint_dir $CHECKPOINT_DIR --mode $MODE --down_size $DOWN_SIZE \
+                    --batch_size $BATCH_SIZE --gpus $GPU_ID --data_dir $FACE_DIR --seed $SEED \
+        ```    
+        - You can reference the test script in the [$run_test.sh](run_test.sh)
+    
+    - 3-2. TinyFace Identification Test
+        - Download the pre-processed [TinyFace dataset](https://github.com/mk-minchul/AdaFace/tree/master/validation_lq). After unzip, the directory structure can be defined as follows:
+            ```bash
+            tinyface/
+                - tinyface/
+                - aligned_pad_0.1_pad_high/
+            ```
+        - We employ LR network trained on multi-resolution settings for the tinyface evaluation
+            ```bash
+            python test_tinyface.py --checkpoint_path $CHECKPOINT_PATH --batch_size $BATCH_SZIE \
+                                    --tinyface_dir $TINYFACE_DIR --save_dir $SAVE_DIR --gpus $GPU_ID
+            ```
+        - You can reference the test script in the [$run_test.sh](run_test.sh)
+
 
 
 # Issues
